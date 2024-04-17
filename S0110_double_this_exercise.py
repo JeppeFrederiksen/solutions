@@ -26,9 +26,12 @@ Send derefter denne Teams-meddelelse til din lærer: <filename> færdig
 Fortsæt derefter med den næste fil.
 """
 
+
 #  Write your function below this line.
 def double_this(number):
     double_number = number * 2
     return double_number
+
+
 # Here starts the main program. From the main program you can call your functions.
 print(double_this(3))

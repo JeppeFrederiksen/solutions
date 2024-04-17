@@ -43,4 +43,4 @@ def factorial(number):
 
 # Here starts the main program. From the main program you can call your functions.
 factorial_input = 6
-print(f"{factorial_input}!","=",factorial(factorial_input))
+print(f"{factorial_input}!", "=", factorial(factorial_input))
