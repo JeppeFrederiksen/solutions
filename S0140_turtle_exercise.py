@@ -82,7 +82,8 @@ def squiggle(s_length):
     turtle.penup()
     turtle.goto(150, 100)
     turtle.pendown()
-    for i in range(int(s_length / 10)):
+    repetitions = int(s_length / 10)
+    for i in range(repetitions):
         turtle.forward(s_length)
         turtle.right(90)
         turtle.forward(s_length)
@@ -124,6 +125,43 @@ def star3():
     for i in range(11):
         turtle.forward(150)
         turtle.right(130.909)
+    turtle.penup()
+
+
+def thumbu():
+    turtle.goto(-400,0)
+    turtle.setheading(0)
+    turtle.pencolor("black")
+    turtle.pendown()
+    turtle.forward(100)
+    for i in range(4):
+        turtle.penup()
+        turtle.left(90)
+        turtle.forward(20)
+        turtle.left(90)
+        turtle.pendown()
+        turtle.forward(15)
+        turtle.right(180)
+        turtle.forward(15)
+    turtle.penup()
+    turtle.goto(-300, 0)
+    for i in range(4):
+        turtle.pendown()
+        turtle.circle(10, 180)
+        turtle.left(180)
+    turtle.goto(-340, 80)
+    turtle.setheading(90)
+    turtle.pendown()
+    turtle.forward(30)
+    turtle.circle(12, 130)
+    turtle.setheading(-90)
+    turtle.forward(39)
+    turtle.setheading(-120)
+    turtle.forward(30)
+    turtle.setheading(180)
+    turtle.goto(-400, 54)
+    turtle.left(90)
+    turtle.forward(54)
     turtle.done()
 
 
@@ -164,3 +202,5 @@ squiggle(100)
 star1()
 star2()
 star3()
+
+thumbu()
