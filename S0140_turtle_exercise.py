@@ -129,7 +129,7 @@ def star3():
 
 
 def thumbu():
-    turtle.goto(-400,0)
+    turtle.goto(-400, 0)
     turtle.setheading(0)
     turtle.pencolor("black")
     turtle.pendown()
