@@ -96,39 +96,35 @@ def squiggle(s_length):
     turtle.penup()
 
 
-def star1():
-    turtle.pencolor("yellow")
+def star(points):
+    if points > 6:
+        angle = 360 / points * 4
+    else:
+        angle = 360 / points * 2
+    for i in range(points):
+        turtle.forward(150)
+        turtle.right(angle)
+
+
+def stars(first, second, third):
+    turtle.pencolor("green")
     turtle.pensize(2)
-    turtle.right(72)
-    turtle.goto(-200, -165)
+    turtle.setheading(0)
+    turtle.goto(-280, -200)
     turtle.pendown()
-    for i in range(5):
-        turtle.forward(150)
-        turtle.right(144)
+    star(first)
+    turtle.penup()
+    turtle.goto(-75, -236)
+    turtle.pendown()
+    star(second)
+    turtle.penup()
+    turtle.goto(125, -175)
+    turtle.pendown()
+    star(third)
     turtle.penup()
 
 
-def star2():
-    turtle.goto(-0, -165)
-    turtle.right(5)
-    turtle.pendown()
-    for i in range(7):
-        turtle.forward(150)
-        turtle.right(154.286)
-    turtle.penup()
-
-
-def star3():
-    turtle.goto(200, -165)
-    turtle.left(12)
-    turtle.pendown()
-    for i in range(11):
-        turtle.forward(150)
-        turtle.right(130.909)
-    turtle.penup()
-
-
-def thumbu():
+def thumbup():
     turtle.goto(-400, 0)
     turtle.setheading(0)
     turtle.pencolor("black")
@@ -199,8 +195,6 @@ many_squares(3, length + length, 10)
 
 squiggle(100)
 
-star1()
-star2()
-star3()
+stars(5, 7, 11)
 
-thumbu()
+thumbup()
