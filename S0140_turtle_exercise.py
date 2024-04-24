@@ -160,7 +160,6 @@ def thumbup():
     turtle.forward(54)
     turtle.done()
 
-
 """
 def demo():  # demonstration of basic turtle commands
     tom = turtle.Turtle()  # create an object named tom of type Turtle
