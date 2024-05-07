@@ -81,9 +81,9 @@ class Healer(Character):
             print(char)
 
 
-char1 = Character("Alex", 100, 100, 10)
-char2 = Character("Andy", 100, 100, 10)
-char3 = Healer("Bob", 50, 50, 0, 20)
+char1 = Character("Alex", 100, 10)
+char2 = Character("Andy", 100, 10)
+char3 = Healer("Bob", 50, 0, 20)
 charlist = ['', char1, char2, char3, '']
 for char in charlist:
     print(char)
