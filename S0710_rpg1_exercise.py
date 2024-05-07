@@ -48,7 +48,19 @@ class Character:
         self.attackpower = attackpower
 
     def __repr__(self):
-        return f'Name: {self.name}, Health: {self._current_health}, Attackpower: {self.attackpower}'
+        return f'Name: {self.name}, Health: {self._current_health}, Attackpower: {self.attackpower}, Status: {self.status()}'
+
+    def alive(self):
+        if self._current_health > 0:
+            return True
+        else:
+            return False
+
+    def status(self):
+        if self.alive():
+            return "Alive"
+        else:
+            return "Dead"
 
     def hit(self, other):
         other.get_hit(self)
@@ -64,7 +76,6 @@ class Character:
         if self._current_health > self.max_health:
             self._current_health = self.max_health
 
-
 class Healer(Character):
 
     def __init__(self, name, health, attackpower, healpower):
@@ -75,10 +86,13 @@ class Healer(Character):
         return f'Name: {self.name}, Health: {self._current_health}, Healpower: {self.healpower}'
 
     def heal(self, other):
-        other.get_healed(self)
-        print(f'{self.name} heals {other.name}')
-        for char in charlist:
-            print(char)
+        if not other.alive():
+            print(f"{other.name} is dead and cannot be healed.")
+        else:
+            other.get_healed(self)
+            print(f'{self.name} heals {other.name}')
+            for char in charlist:
+                print(char)
 
 
 char1 = Character("Alex", 110, 15)
