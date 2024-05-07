@@ -65,8 +65,6 @@ class Character:
     def hit(self, other):
         other.get_hit(self)
         print(f'{self.name} hits {other.name}')
-        for char in charlist:
-            print(char)
 
     def get_hit(self, other):
         self._current_health -= other.attackpower
@@ -76,14 +74,15 @@ class Character:
         if self._current_health > self.max_health:
             self._current_health = self.max_health
 
+
 class Healer(Character):
 
-    def __init__(self, name, health, attackpower, healpower):
-        super().__init__(name, health, attackpower)
+    def __init__(self, name, health, healpower):
+        super().__init__(name, health, 0)
         self.healpower = healpower
 
     def __repr__(self):
-        return f'Name: {self.name}, Health: {self._current_health}, Healpower: {self.healpower}'
+        return f'Name: {self.name}, Class: Healer, Health: {self._current_health}, Healpower: {self.healpower}, Status: {self.status()}'
 
     def heal(self, other):
         if not other.alive():
@@ -91,15 +90,42 @@ class Healer(Character):
         else:
             other.get_healed(self)
             print(f'{self.name} heals {other.name}')
-            for char in charlist:
-                print(char)
 
 
-char1 = Character("Alex", 110, 25)
+class Mage(Character):
+
+    def __init__(self, name, health, attackpower, mana):
+        super().__init__(name, health, attackpower)
+        self.mana = mana
+
+    def __repr__(self):
+        return f'Name: {self.name}, Class: Mage, Health: {self._current_health}, Attackpower: {self.attackpower}, Mana: {self.mana}, Status: {self.status()}'
+
+    def multihit(self, other1, other2, other3):
+        self.mana -= 10
+        print(f'{self.name} casts Multi hit on {other1.name}, {other2.name} and {other3.name}.')
+        print()
+        self.hit(other1)
+        self.hit(other2)
+        self.hit(other3)
+
+
+char1 = Character("Alex", 110, 15)
 char2 = Character("Andy", 100, 10)
-char3 = Healer("Bob", 50, 0, 20)
-charlist = ['', char1, char2, char3, '']
+char3 = Healer("Bob", 50, 20)
+char4 = Mage("Daniel", 75, 10, 50)
+charlist = ['', char1, char2, char3, char4, '']
 for char in charlist:
     print(char)
 char1.hit(char2)
+for char in charlist:
+    print(char)
 char3.heal(char2)
+for char in charlist:
+    print(char)
+char4.multihit(char1, char2, char3)
+for char in charlist:
+    print(char)
+char3.heal(char3)
+for char in charlist:
+    print(char)
