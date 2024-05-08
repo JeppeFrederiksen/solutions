@@ -37,7 +37,7 @@ og sammenlign det med lærerens løsning i S0730_rpg1_solution.py
 
 Send derefter denne Teams-besked til din lærer: <filename> færdig
 Fortsæt derefter med den næste fil."""
-
+import random
 
 class Character:
 
@@ -63,8 +63,11 @@ class Character:
             return "Dead"
 
     def hit(self, other):
-        other.get_hit(self)
-        print(f'{self.name} hits {other.name}')
+        if other.alive():
+            other.get_hit(self)
+            print(f'{self.name} hits {other.name}')
+        else:
+            print(f"{other.name} is dead and cannot be hit.")
 
     def get_hit(self, other):
         self._current_health -= other.attackpower
@@ -74,22 +77,45 @@ class Character:
         if self._current_health > self.max_health:
             self._current_health = self.max_health
 
+    def get_reveived(self):
+        self._current_health = self.max_health
+
+
+class Hero(Character):
+
+    def __repr__(self):
+        return f'Name: {self.name}, Class: Hero, Health: {self._current_health}, Attackpower: {self.attackpower}, Status: {self.status()}'
+
+    def swordswing(self, other):
+        print(f'{self.name} swings his sword at {other.name}.')
+        self.hit(other)
+
 
 class Healer(Character):
 
-    def __init__(self, name, health, healpower):
+    def __init__(self, name, health, healpower, mana):
         super().__init__(name, health, 0)
         self.healpower = healpower
+        self.mana = mana
 
     def __repr__(self):
-        return f'Name: {self.name}, Class: Healer, Health: {self._current_health}, Healpower: {self.healpower}, Status: {self.status()}'
+        return f'Name: {self.name}, Class: Healer, Health: {self._current_health}, Healpower: {self.healpower}, Mana: {self.mana}, Status: {self.status()}'
 
     def heal(self, other):
-        if not other.alive():
-            print(f"{other.name} is dead and cannot be healed.")
-        else:
+        if other.alive():
             other.get_healed(self)
+            self.mana -= 10
             print(f'{self.name} heals {other.name}')
+        else:
+            print(f"{other.name} is dead and cannot be healed.")
+
+    def revive(self, other):
+        if other.alive():
+            print(f"{other.name} is still alive and cannot be revived.")
+        else:
+            other.get_reveived()
+            self.mana -= 35
+            print(f'{self.name} revives {other.name}.')
 
 
 class Mage(Character):
@@ -101,7 +127,7 @@ class Mage(Character):
     def __repr__(self):
         return f'Name: {self.name}, Class: Mage, Health: {self._current_health}, Attackpower: {self.attackpower}, Mana: {self.mana}, Status: {self.status()}'
 
-    def multihit(self, other1, other2, other3):
+    def fireballs(self, other1, other2, other3):
         self.mana -= 10
         print(f'{self.name} casts Multi hit on {other1.name}, {other2.name} and {other3.name}.')
         print()
@@ -109,11 +135,16 @@ class Mage(Character):
         self.hit(other2)
         self.hit(other3)
 
+    def debuff(self, other):
+        self.mana -= 15
+        other.attackpower -= int(other.attackpower / 2)
+        print(f'{self.name} casts Debuff on {other.name}')
 
-char1 = Character("Alex", 110, 15)
+
+char1 = Hero("Alex", 110, 150)
 char2 = Character("Andy", 100, 10)
-char3 = Healer("Bob", 50, 20)
-char4 = Mage("Daniel", 75, 10, 50)
+char3 = Healer("Bob", 50, 20, 50)
+char4 = Mage("Daniel", 75, 10, 100)
 charlist = ['', char1, char2, char3, char4, '']
 for char in charlist:
     print(char)
@@ -123,9 +154,15 @@ for char in charlist:
 char3.heal(char2)
 for char in charlist:
     print(char)
-char4.multihit(char1, char2, char3)
+char4.fireballs(char1, char2, char3)
 for char in charlist:
     print(char)
 char3.heal(char3)
+for char in charlist:
+    print(char)
+char3.revive(char2)
+for char in charlist:
+    print(char)
+char4.debuff(char1)
 for char in charlist:
     print(char)
