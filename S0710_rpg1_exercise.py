@@ -65,12 +65,15 @@ class Character:
     def hit(self, other):
         if other.alive():
             other.get_hit(self)
-            print(f'{self.name} hits {other.name}')
         else:
             print(f"{other.name} is dead and cannot be hit.")
 
     def get_hit(self, other):
-        self._current_health -= other.attackpower
+        random1 = random.randint(1, 20)
+        self._current_health -= other.attackpower + random1
+        if self._current_health < 0:
+            self._current_health = 0
+        print(f'{other.name} hits {self.name} for {other.attackpower + random1} damage')
 
     def get_healed(self, other):
         self._current_health += other.healpower
@@ -83,28 +86,113 @@ class Character:
 
 class Hero(Character):
 
+    def __init__(self, name, health, attackpower):
+        super().__init__(name, health, attackpower)
+        self.shield_status = False
+
     def __repr__(self):
-        return f'Name: {self.name}, Class: Hero, Health: {self._current_health}, Attackpower: {self.attackpower}, Status: {self.status()}'
+        return f'Name: {self.name}, Class: Hero, Health: {self._current_health}, Attackpower: {self.attackpower}, Shield: {self.get_shield_status()}, Status: {self.status()}'
 
     def swordswing(self, other):
-        print(f'{self.name} swings his sword at {other.name}.')
+        if self.shield_status:
+            print(f'{self.name} has their shield up and cannot attack.')
+        else:
+            print(f'{self.name} swings their sword at {other.name}.\n')
+            self.hit(other)
+
+    def shield(self):
+        if self.shield_status:
+            print(f'{self.name} puts down their shield.')
+            self.shield_status = False
+        else:
+            print(f'{self.name} puts up their shield')
+            self.shield_status = True
+
+    def get_shield_status(self):
+        if self.shield_status:
+            return 'up'
+        else:
+            return 'down'
+
+    def get_hit(self, other):
+        random1 = random.randint(1, 20)
+        if self._current_health < 0:
+            self._current_health = 0
+        if self.shield_status:
+            print(f"{other.name} tries to hit {self.name}, but their attack is blocked by {self.name}'s shield.")
+        else:
+            self._current_health -= other.attackpower + random1
+            print(f'{other.name} hits {self.name} for {other.attackpower + random1} damage')
+
+class Crusader(Character):
+
+    def __init__(self, name, health, attackpower, armor_durability, armor_protection):
+        super().__init__(name, health, attackpower)
+        self.armor_durability = armor_durability
+        self.armor_protection = armor_protection
+
+    def __repr__(self):
+        return f'Name: {self.name}, Class: Crusader, Health: {self._current_health}, Attackpower: {self.attackpower}, Armor durability: {self.armor_durability}, Armor protection: {self.armor_protection}, Status: {self.status()}'
+
+    def armor_broken(self):
+        if self.armor_durability <= 0:
+            return True
+        else:
+            return False
+
+    def get_hit(self, other):
+        random1 = random.randint(1, 20)
+        attack_dmg = (other.attackpower + random1) - self.armor_protection
+        if attack_dmg < 0:
+            attack_dmg = 0
+        if self.armor_broken():
+            self._current_health -= other.attackpower + random1
+            print(f'{other.name} hits {self.name} for {other.attackpower + random1} damage')
+        else:
+            self._current_health -= attack_dmg
+            self.armor_durability -= other.attackpower
+            if self.armor_durability < 0:
+                self.armor_durability = 0
+            print(f'{other.name} hits {self.name} for {attack_dmg} damage because of their armor.')
+
+    def greatsword_swing(self, other):
+        print(f"{self.name} swings their greatsword at {other.name}.\n")
         self.hit(other)
 
 
-class Healer(Character):
+class Spellcaster(Character):
+
+    def __init__(self, name, health, attackpower, mana):
+        super().__init__(name, health, attackpower)
+        self.max_mana = mana
+        self._current_mana = mana
+        self.mana_recovered = 15
+
+    def recover_mana(self):
+        if self._current_mana < self.max_mana:
+            self._current_mana += self.mana_recovered
+            if self._current_mana > self.max_mana:
+                self._current_mana = self.max_mana
+            print(f'{self.name} recovers some mana.')
+        else:
+            print(f'{self.name} tries to recover some mana, but it is already full.')
+
+
+class Healer(Spellcaster):
 
     def __init__(self, name, health, healpower, mana):
-        super().__init__(name, health, 0)
+        super().__init__(name, health, 0, mana)
         self.healpower = healpower
-        self.mana = mana
+        self.heal_mana = 10
+        self.revive_mana = 35
 
     def __repr__(self):
-        return f'Name: {self.name}, Class: Healer, Health: {self._current_health}, Healpower: {self.healpower}, Mana: {self.mana}, Status: {self.status()}'
+        return f'Name: {self.name}, Class: Healer, Health: {self._current_health}, Healpower: {self.healpower}, Mana: {self._current_mana}, Status: {self.status()}'
 
     def heal(self, other):
         if other.alive():
             other.get_healed(self)
-            self.mana -= 10
+            self._current_mana -= self.heal_mana
             print(f'{self.name} heals {other.name}')
         else:
             print(f"{other.name} is dead and cannot be healed.")
@@ -114,55 +202,78 @@ class Healer(Character):
             print(f"{other.name} is still alive and cannot be revived.")
         else:
             other.get_reveived()
-            self.mana -= 35
+            self._current_mana -= self.revive_mana
             print(f'{self.name} revives {other.name}.')
 
 
-class Mage(Character):
+class Mage(Spellcaster):
 
     def __init__(self, name, health, attackpower, mana):
-        super().__init__(name, health, attackpower)
-        self.mana = mana
+        super().__init__(name, health, attackpower, mana)
+        self.fireballs_mana = 10
+        self.debuff_mana = 15
 
     def __repr__(self):
-        return f'Name: {self.name}, Class: Mage, Health: {self._current_health}, Attackpower: {self.attackpower}, Mana: {self.mana}, Status: {self.status()}'
+        return f'Name: {self.name}, Class: Mage, Health: {self._current_health}, Attackpower: {self.attackpower}, Mana: {self._current_mana}, Status: {self.status()}'
 
     def fireballs(self, other1, other2, other3):
-        self.mana -= 10
-        print(f'{self.name} casts Multi hit on {other1.name}, {other2.name} and {other3.name}.')
-        print()
+        self._current_mana -= self.fireballs_mana
+        print(f'{self.name} casts Fireballs on {other1.name}, {other2.name} and {other3.name}.\n')
         self.hit(other1)
         self.hit(other2)
         self.hit(other3)
 
     def debuff(self, other):
-        self.mana -= 15
+        self._current_mana -= self.debuff_mana
         other.attackpower -= int(other.attackpower / 2)
         print(f'{self.name} casts Debuff on {other.name}')
 
+    def recover_mana(self):
+        if self._current_mana < self.max_mana:
+            self._current_mana += 15
+            if self._current_mana > self.max_mana:
+                self._current_mana = self.max_mana
+            print(f'{self.name} recovers some mana.')
+        else:
+            print(f'{self.name} tries to recover some mana, but it is already full.')
 
-char1 = Hero("Alex", 110, 150)
-char2 = Character("Andy", 100, 10)
-char3 = Healer("Bob", 50, 20, 50)
-char4 = Mage("Daniel", 75, 10, 100)
+
+class Dragon(Character):
+
+    def swing(self, other):
+        print(f"{self.name} swings it's claws at {other.name}")
+        self.hit(other)
+
+    def fire_breath(self, other1, other2, other3):
+        print(f"{self.name} spews fire from it's mouth.")
+        self.hit(other1)
+        self.hit(other2)
+        self.hit(other3)
+
+
+char1 = Hero("Kazuma", 110, 30)
+char2 = Crusader("Darkness", 100, 15, 50, 50)
+char3 = Healer("Aqua", 50, 20, 50)
+char4 = Mage("Megumin", 75, 30, 100)
+enemy1 = Dragon("The Dragon", 500, 50)
 charlist = ['', char1, char2, char3, char4, '']
 for char in charlist:
     print(char)
-char1.hit(char2)
+char1.shield()
 for char in charlist:
     print(char)
-char3.heal(char2)
+char1.swordswing(char2)
 for char in charlist:
     print(char)
-char4.fireballs(char1, char2, char3)
+char2.greatsword_swing(char1)
 for char in charlist:
     print(char)
-char3.heal(char3)
+char1.shield()
 for char in charlist:
     print(char)
-char3.revive(char2)
+char2.greatsword_swing(char1)
 for char in charlist:
     print(char)
-char4.debuff(char1)
+char1.swordswing(char2)
 for char in charlist:
     print(char)
