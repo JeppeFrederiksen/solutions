@@ -41,9 +41,6 @@ class Numbers:
             print(f'You Win! \nYou won in {self.guess_count} guesses')
             self.won = True
 
-    def print_numbers(self):
-        print(f'{self.num1} {self.num2} {self.num3} {self.num4}')
-
     def guess(self):
         num_list = [self.num1, self.num2, self.num3, self.num4]
         guess = list(map(int, input(f'Your guess: ').split()))
@@ -67,6 +64,5 @@ class Numbers:
 game = Numbers(random.randint(1, 9), random.randint(1, 9), random.randint(1, 9), random.randint(1, 9))
 
 print(game)
-game.print_numbers()
 while game.won is False:
     game.guess()
