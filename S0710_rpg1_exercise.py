@@ -45,10 +45,12 @@ class Character:
         self.name = name
         self.max_health = health
         self._current_health = health
-        self.attackpower = attackpower
+        self.current_attackpower = attackpower
+        self.max_attackpower = attackpower
+        self.debuffed = False
 
     def __repr__(self):
-        return f'Name: {self.name}, Health: {self._current_health}, Attackpower: {self.attackpower}, Status: {self.status()}'
+        return f'Name: {self.name}, Health: {self._current_health}, Attackpower: {self.current_attackpower}{self.check_debuff()}, Status: {self.status()}'
 
     def alive(self):
         if self._current_health > 0:
@@ -66,14 +68,14 @@ class Character:
         if other.alive():
             other.get_hit(self)
         else:
-            print(f"{other.name} is dead and cannot be hit.")
+            print(f"{other.name} is dead and cannot be hit.\n")
 
     def get_hit(self, other):
         random1 = random.randint(1, 20)
-        self._current_health -= other.attackpower + random1
+        self._current_health -= other.current_attackpower + random1
         if self._current_health < 0:
             self._current_health = 0
-        print(f'{other.name} hits {self.name} for {other.attackpower + random1} damage')
+        print(f'{other.name} hits {self.name} for {other.current_attackpower + random1} damage\n')
 
     def get_healed(self, other):
         self._current_health += other.healpower
@@ -83,6 +85,12 @@ class Character:
     def get_reveived(self):
         self._current_health = self.max_health
 
+    def check_debuff(self):
+        if self.debuffed:
+            return '(Debuffed)'
+        else:
+            return ''
+
 
 class Hero(Character):
 
@@ -91,21 +99,21 @@ class Hero(Character):
         self.shield_status = False
 
     def __repr__(self):
-        return f'Name: {self.name}, Class: Hero, Health: {self._current_health}, Attackpower: {self.attackpower}, Shield: {self.get_shield_status()}, Status: {self.status()}'
+        return f'Name: {self.name}, Class: Hero, Health: {self._current_health}, Attackpower: {self.current_attackpower}, Shield: {self.get_shield_status()}, Status: {self.status()}'
 
     def swordswing(self, other):
         if self.shield_status:
-            print(f'{self.name} has their shield up and cannot attack.')
+            print(f'{self.name} has their shield up and cannot attack.\n')
         else:
             print(f'{self.name} swings their sword at {other.name}.\n')
             self.hit(other)
 
     def shield(self):
         if self.shield_status:
-            print(f'{self.name} puts down their shield.')
+            print(f'{self.name} puts down their shield.\n')
             self.shield_status = False
         else:
-            print(f'{self.name} puts up their shield')
+            print(f'{self.name} puts up their shield\n')
             self.shield_status = True
 
     def get_shield_status(self):
@@ -119,10 +127,11 @@ class Hero(Character):
         if self._current_health < 0:
             self._current_health = 0
         if self.shield_status:
-            print(f"{other.name} tries to hit {self.name}, but their attack is blocked by {self.name}'s shield.")
+            print(f"{other.name} tries to hit {self.name}, but their attack is blocked by {self.name}'s shield.\n")
         else:
-            self._current_health -= other.attackpower + random1
-            print(f'{other.name} hits {self.name} for {other.attackpower + random1} damage')
+            self._current_health -= other.current_attackpower + random1
+            print(f'{other.name} hits {self.name} for {other.current_attackpower + random1} damage\n')
+
 
 class Crusader(Character):
 
@@ -132,7 +141,7 @@ class Crusader(Character):
         self.armor_protection = armor_protection
 
     def __repr__(self):
-        return f'Name: {self.name}, Class: Crusader, Health: {self._current_health}, Attackpower: {self.attackpower}, Armor durability: {self.armor_durability}, Armor protection: {self.armor_protection}, Status: {self.status()}'
+        return f'Name: {self.name}, Class: Crusader, Health: {self._current_health}, Attackpower: {self.current_attackpower}, Armor durability: {self.armor_durability}, Armor protection: {self.armor_protection}, Status: {self.status()}'
 
     def armor_broken(self):
         if self.armor_durability <= 0:
@@ -142,22 +151,31 @@ class Crusader(Character):
 
     def get_hit(self, other):
         random1 = random.randint(1, 20)
-        attack_dmg = (other.attackpower + random1) - self.armor_protection
+        attack_dmg = (other.current_attackpower + random1) - self.armor_protection
         if attack_dmg < 0:
             attack_dmg = 0
         if self.armor_broken():
-            self._current_health -= other.attackpower + random1
-            print(f'{other.name} hits {self.name} for {other.attackpower + random1} damage')
+            self._current_health -= other.current_attackpower + random1
+            print(f'{other.name} hits {self.name} for {other.current_attackpower + random1} damage\n')
         else:
             self._current_health -= attack_dmg
-            self.armor_durability -= other.attackpower
+            self.armor_durability -= other.current_attackpower
             if self.armor_durability < 0:
                 self.armor_durability = 0
-            print(f'{other.name} hits {self.name} for {attack_dmg} damage because of their armor.')
+            print(f'{other.name} hits {self.name} for {attack_dmg} damage because of their armor.\n')
 
     def greatsword_swing(self, other):
         print(f"{self.name} swings their greatsword at {other.name}.\n")
         self.hit(other)
+
+    def heavy_swing(self, other):
+        print(f"{self.name} swings their greasword with a lot of force at {other.name}, breaking their armor slightly in the process.\n")
+        self.current_attackpower += (self.current_attackpower * 2)
+        self.hit(other)
+        self.current_attackpower = self.max_attackpower
+        self.armor_durability -= 10
+        if self.armor_durability < 0:
+            self.armor_durability = 0
 
 
 class Spellcaster(Character):
@@ -173,9 +191,9 @@ class Spellcaster(Character):
             self._current_mana += self.mana_recovered
             if self._current_mana > self.max_mana:
                 self._current_mana = self.max_mana
-            print(f'{self.name} recovers some mana.')
+            print(f'{self.name} recovers some mana.\n')
         else:
-            print(f'{self.name} tries to recover some mana, but it is already full.')
+            print(f'{self.name} tries to recover some mana, but it is already full.\n')
 
 
 class Healer(Spellcaster):
@@ -193,17 +211,17 @@ class Healer(Spellcaster):
         if other.alive():
             other.get_healed(self)
             self._current_mana -= self.heal_mana
-            print(f'{self.name} heals {other.name}')
+            print(f'\n{self.name} heals {other.name}\n')
         else:
-            print(f"{other.name} is dead and cannot be healed.")
+            print(f"{other.name} is dead and cannot be healed.\n")
 
     def revive(self, other):
         if other.alive():
-            print(f"{other.name} is still alive and cannot be revived.")
+            print(f"{other.name} is still alive and cannot be revived.\n")
         else:
             other.get_reveived()
             self._current_mana -= self.revive_mana
-            print(f'{self.name} revives {other.name}.')
+            print(f'{self.name} revives {other.name}.\n')
 
 
 class Mage(Spellcaster):
@@ -214,7 +232,7 @@ class Mage(Spellcaster):
         self.debuff_mana = 15
 
     def __repr__(self):
-        return f'Name: {self.name}, Class: Mage, Health: {self._current_health}, Attackpower: {self.attackpower}, Mana: {self._current_mana}, Status: {self.status()}'
+        return f'Name: {self.name}, Class: Mage, Health: {self._current_health}, Attackpower: {self.current_attackpower}, Mana: {self._current_mana}, Status: {self.status()}'
 
     def fireballs(self, other1, other2, other3):
         self._current_mana -= self.fireballs_mana
@@ -224,56 +242,167 @@ class Mage(Spellcaster):
         self.hit(other3)
 
     def debuff(self, other):
-        self._current_mana -= self.debuff_mana
-        other.attackpower -= int(other.attackpower / 2)
-        print(f'{self.name} casts Debuff on {other.name}')
-
-    def recover_mana(self):
-        if self._current_mana < self.max_mana:
-            self._current_mana += 15
-            if self._current_mana > self.max_mana:
-                self._current_mana = self.max_mana
-            print(f'{self.name} recovers some mana.')
+        if other.debuffed:
+            print(f"\n{other.name} is already debuffed.\n")
         else:
-            print(f'{self.name} tries to recover some mana, but it is already full.')
+            self._current_mana -= self.debuff_mana
+            print(f'\n{self.name} casts Debuff on {other.name}\n')
+            other.current_attackpower -= int(self.current_attackpower / 2)
+            other.debuffed = True
 
 
 class Dragon(Character):
 
+    def __repr__(self):
+        return f'{self.name}, Health: {self._current_health}, Attackpower: {self.current_attackpower}, Status: {self.status()}\n'
+
     def swing(self, other):
-        print(f"{self.name} swings it's claws at {other.name}")
+        print(f"\n{self.name} swings it's claws at {other.name}\n")
         self.hit(other)
 
     def fire_breath(self, other1, other2, other3):
-        print(f"{self.name} spews fire from it's mouth.")
+        print(f"\n{self.name} spews fire from it's mouth.\n")
         self.hit(other1)
         self.hit(other2)
         self.hit(other3)
 
+    def roar(self):
+        if self.debuffed:
+            print(f'\n{self.name} roars loudly, removing all debuffs.\n')
+            self.current_attackpower = self.max_attackpower
+            self.debuffed = False
+        else:
+            print(f'\n{self.name} roars loudly but nothing happened.\n')
+
+    def rndmove(self):
+        random2 = random.randint(1, 10)
+        if 1 <= random2 <= 5:
+            return self.fire_breath(random.choice(charlist), random.choice(charlist), random.choice(charlist))
+        elif 6 <= random2 <= 9:
+            return self.swing(random.choice(charlist))
+        else:
+            return self.roar()
+
+
+def start_game(p1, p2, p3, p4):
+    print("a deadly dragon stands in your party's way")
+    print(f"your party consist of {p1.name}, {p2.name}, {p3.name} and {p4.name}.\n")
+
+
+def gameover():
+    if char1.alive() is False and char2.alive() is False and char3.alive() is False and char4.alive() is False:
+        print("\nEveryone died. GAME OVER")
+        return True
+    elif enemy1.alive() is False:
+        print("\nYou killed the Dragon. YOU WIN!")
+        return True
+    elif char1.alive() or char2.alive() or char3.alive() or char4.alive():
+        return False
+
+
+def hero_turn(hero):
+    if hero.alive():
+        hmovelist = ['1 swing sword', '2 shield']
+        print(f"\n{hero.name}'s moves: {hmovelist}")
+        inp = input(f"What does {hero.name} do?\n")
+        if inp in hmovelist[0]:
+            return hero.swordswing(enemy1)
+        elif inp in hmovelist[1]:
+            return hero.shield()
+        else:
+            return ''
+    else:
+        print(f"{hero.name} is dead\n")
+
+
+def crusader_turn(crusader):
+    if crusader.alive():
+        cmovelist = ['1 swing greatsword', '2 Heavy swing']
+        print(f"\n{crusader.name}'s moves: {cmovelist}")
+        inp = input(f"What does {crusader.name} do?\n")
+        if inp in cmovelist[0]:
+            return crusader.greatsword_swing(enemy1)
+        elif inp in cmovelist[1]:
+            return crusader.heavy_swing(enemy1)
+        else:
+            return ''
+    else:
+        print(f"{crusader.name} is dead\n")
+
+
+def healer_turn(healer):
+    if healer.alive():
+        hmovelist = ['1 hit', '2 recover mana', f'3 heal({healer.heal_mana})', f'4 revive({healer.revive_mana})']
+        partylist = ['Kazuma', 'Darkness', 'Aqua', 'Megumin']
+        print(f"\n{healer.name}'s moves: {hmovelist}")
+        inp1 = input(f"What does {healer.name} do?\n")
+        if inp1 in hmovelist[0]:
+            return healer.hit(enemy1)
+        elif inp1 in hmovelist[1]:
+            return healer.recover_mana()
+        elif inp1 in hmovelist[2]:
+            healinp = input(f"who does {healer.name} heal?\n")
+            if healinp in partylist[0]:
+                return healer.heal(char1)
+            elif healinp in partylist[1]:
+                return healer.heal(char2)
+            elif healinp in partylist[2]:
+                return healer.heal(char3)
+            elif healinp in partylist[3]:
+                return healer.heal(char4)
+        elif inp1 in hmovelist[3]:
+            revinp = input(f"Who does {healer.name} revive?\n")
+            if revinp in partylist[0]:
+                return healer.revive(char1)
+            elif revinp in partylist[1]:
+                return healer.revive(char2)
+            elif revinp in partylist[2]:
+                return healer.revive(char3)
+            elif revinp in partylist[3]:
+                return healer.revive(char4)
+        else:
+            return ''
+    else:
+        print(f"{healer.name} is dead\n")
+
+def mageturn(mage):
+    if mage.alive():
+        mmovelist = [f'1 fireballs({mage.fireballs_mana})', f'2 debuff({mage.debuff_mana})', '3 recover mana']
+        print(f"\n{mage.name}'s moves: {mmovelist}")
+        inp = input(f"What does {mage.name} do?\n")
+        if inp in mmovelist[0]:
+            return mage.fireballs(enemy1, enemy1, enemy1)
+        elif inp in mmovelist[1]:
+            return mage.debuff(enemy1)
+        elif inp in mmovelist[2]:
+            return mage.recover_mana()
+        else:
+            return ''
+    else:
+        print(f"{mage.name} is dead\n")
+
 
 char1 = Hero("Kazuma", 110, 30)
-char2 = Crusader("Darkness", 100, 15, 50, 50)
-char3 = Healer("Aqua", 50, 20, 50)
-char4 = Mage("Megumin", 75, 30, 100)
-enemy1 = Dragon("The Dragon", 500, 50)
-charlist = ['', char1, char2, char3, char4, '']
+char2 = Crusader("Darkness", 140, 15, 50, 50)
+char3 = Healer("Aqua", 100, 55, 50)
+char4 = Mage("Megumin", 105, 40, 100)
+enemy1 = Dragon("The Dragon", 1000, 50)
+charlist = [char1, char2, char3, char4, ]
+
+start_game(char1, char2, char3, char4)
 for char in charlist:
     print(char)
-char1.shield()
-for char in charlist:
-    print(char)
-char1.swordswing(char2)
-for char in charlist:
-    print(char)
-char2.greatsword_swing(char1)
-for char in charlist:
-    print(char)
-char1.shield()
-for char in charlist:
-    print(char)
-char2.greatsword_swing(char1)
-for char in charlist:
-    print(char)
-char1.swordswing(char2)
-for char in charlist:
-    print(char)
+while True:
+    if gameover():
+        break
+    hero_turn(char1)
+    print(enemy1)
+    crusader_turn(char2)
+    print(enemy1)
+    healer_turn(char3)
+    print(enemy1)
+    mageturn(char4)
+    print(enemy1)
+    enemy1.rndmove()
+    for char in charlist:
+        print(char)
