@@ -168,15 +168,21 @@ class Crusader(Character):
         print(f"{self.name} swings their greatsword at {other.name}.\n")
         self.hit(other)
 
-    def heavy_swing(self, other):
-        print(f"{self.name} swings their greasword with a lot of force at {other.name}, breaking their armor slightly in the process.\n")
+    def heavy_hit(self, other):
         self.current_attackpower += (self.current_attackpower * 2)
         self.hit(other)
         self.current_attackpower = self.max_attackpower
-        self.armor_durability -= 10
-        if self.armor_durability < 0:
-            self.armor_durability = 0
 
+    def heavy_swing(self, other):
+        if not self.armor_broken():
+            print(f"{self.name} swings their greasword with a lot of force at {other.name}, breaking their armor slightly in the process.\n")
+            self.heavy_hit(other)
+            self.armor_durability -= 10
+            if self.armor_durability < 0:
+                self.armor_durability = 0
+        else:
+            print(f"{self.name} swings their greasword with a lot of force at {other.name}.\n")
+            self.heavy_hit(other)
 
 class Spellcaster(Character):
 
@@ -333,7 +339,7 @@ def crusader_turn(crusader):
 def healer_turn(healer):
     if healer.alive():
         hmovelist = ['1 hit', '2 recover mana', f'3 heal({healer.heal_mana})', f'4 revive({healer.revive_mana})']
-        partylist = ['Kazuma', 'Darkness', 'Aqua', 'Megumin']
+        partylist = ['1 Kazuma', '2 Darkness', '3 Aqua', '4 Megumin']
         print(f"\n{healer.name}'s moves: {hmovelist}")
         inp1 = input(f"What does {healer.name} do?\n")
         if inp1 in hmovelist[0]:
@@ -341,7 +347,7 @@ def healer_turn(healer):
         elif inp1 in hmovelist[1]:
             return healer.recover_mana()
         elif inp1 in hmovelist[2]:
-            healinp = input(f"who does {healer.name} heal?\n")
+            healinp = input(f"who does {healer.name} cast heal on? {partylist}\n")
             if healinp in partylist[0]:
                 return healer.heal(char1)
             elif healinp in partylist[1]:
@@ -351,7 +357,7 @@ def healer_turn(healer):
             elif healinp in partylist[3]:
                 return healer.heal(char4)
         elif inp1 in hmovelist[3]:
-            revinp = input(f"Who does {healer.name} revive?\n")
+            revinp = input(f"Who does {healer.name} cast revive on? {partylist}\n")
             if revinp in partylist[0]:
                 return healer.revive(char1)
             elif revinp in partylist[1]:
