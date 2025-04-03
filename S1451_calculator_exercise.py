@@ -24,62 +24,68 @@ Send derefter denne Teams-besked til din lærer: `<filnavn> færdig`
 Fortsæt derefter med den næste fil."""
 
 def explain_usage():
-    print("choose one of the menu options thereafter input two numbers\n")
+    print("choose your first number and then how you want to use it using the options given\n")
 
 def show_menu():
-    print("1. addition")
+    print("\n1. addition")
     print("2. subtraction")
     print("3. multiplication")
     print("4. division")
-    print("5. end \n")
+    print("5. clear")
+    print("6. end \n")
+
+def first_num():
+    fnum = int(input("enter first number: "))
+    return fnum
 
 def choose_option(result):
     choice = input("choose: ")
     if choice == "1":
-        adnum1, adnum2 = input2numbers()
-        result += addition(adnum1, adnum2)
+        num = int(input("one number: "))
+        result = addition(result, num)
     elif choice == "2":
-        subnum1, subnum2 = input2numbers()
-        subtraction(subnum1, subnum2)
+        num = int(input("one number: "))
+        result = subtraction(result, num)
     elif choice == "3":
-        mulnum1, mulnum2 = input2numbers()
-        multiplication(mulnum1, mulnum2)
+        num = int(input("one number: "))
+        result = multiplication(result, num)
     elif choice == "4":
-        divnum1, divnum2 = input2numbers()
-        division(divnum1, divnum2)
+        num = int(input("one number: "))
+        result = division(result, num)
     elif choice == "5":
+        result = first_num()
+    elif choice == "6":
         print("stopping")
         return False
     else:
         print("\ninvalid option\n")
-    return True
-
-def input2numbers():
-    num1 = input("first number: ")
-    num2 = input("second number: ")
-    return num1, num2
+    return True, result
 
 def addition(num1, num2):
-    answer = int(num1) + int(num2)
-    print(f"\nanswer: {answer}\n\n")
+    answer = num1 + num2
+    print(f"\nanswer: {answer}\n")
     return answer
 
 def subtraction(num1, num2):
-    answer = int(num1) - int(num2)
-    print(f"\nanswer: {answer}\n\n")
+    answer = num1 - num2
+    print(f"\nanswer: {answer}\n")
+    return answer
 
 def multiplication(num1, num2):
-    answer = int(num1) * int(num2)
-    print(f"\nanswer: {answer}\n\n")
+    answer = num1 * num2
+    print(f"\nanswer: {answer}\n")
+    return answer
 
 def division(num1, num2):
-    answer = int(num1) / int(num2)
-    print(f"\nanswer: {answer}\n\n")
+    answer = num1 / num2
+    print(f"\nanswer: {answer}\n")
+    return answer
 
 
-result = 0
 explain_usage()
+result = first_num()
 while True:
     show_menu()
-    if not choose_option(result):
+    go_on, result = choose_option(result)
+    if not go_on:
         break
